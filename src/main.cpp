@@ -32,7 +32,6 @@ void loop()
     Ftimer = t;
   }
 
-  // transfer GPS data via BlueTooth
   static bool blink = false;
   static unsigned long oneSecondPM = 0;
   unsigned long oneSecondCM = millis();
