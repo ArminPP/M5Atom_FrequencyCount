@@ -1,12 +1,24 @@
 
 #include <M5Atom.h>
 
-#include "FreqCountESP\src\FreqCountESP.h"  // https://github.com/kapraran/FreqCountESP (MIT)
-uint8_t inputPin = 33;
+#include "FreqCountESP\src\FreqCountESP.h" // https://github.com/kapraran/FreqCountESP (MIT)
+uint8_t inputPin = GPIO_NUM_33;            // 33;
 uint16_t timerMs = 1000;
 
 bool blink = false;
 
+void ElapsedRuntime(uint16_t &dd, byte &hh, byte &mm, byte &ss, uint16_t &ms)
+// returns the elapsed time since startup of the ESP
+{
+  unsigned long now = millis();
+  int nowSeconds = now / 1000;
+
+  dd = nowSeconds / 60 / 60 / 24;
+  hh = (nowSeconds / 60 / 60) % 24;
+  mm = (nowSeconds / 60) % 60;
+  ss = nowSeconds % 60;
+  ms = now % 1000;
+}
 
 void setup()
 {
@@ -16,11 +28,15 @@ void setup()
 
   Serial.println(" FreqCounterESP lib"); // Console print
   FreqCountESP.begin(inputPin, timerMs);
-
 }
 
 void loop()
 {
+  uint16_t dd = 0;
+  byte hh = 0;
+  byte ss = 0;
+  byte mm = 0;
+  uint16_t ms = 0;
 
   // Frequency counter with GPIO33
   static unsigned long Ftimer = 0;
@@ -28,7 +44,15 @@ void loop()
   {
     unsigned long t = millis();
     uint32_t frequency = FreqCountESP.read();
-    Serial.printf("\nTime %lu ms  -  Frequency %i Hz\n", t - Ftimer, frequency);
+    ElapsedRuntime(dd, hh, mm, ss, ms);
+    Serial.printf("%05d|%02i:%02i:%02i:%03i|  F-Time %lu ms  -  Frequency %i Hz\n",
+                  dd,
+                  hh,
+                  mm,
+                  ss,
+                  ms,
+                  t - Ftimer,
+                  frequency);
     Ftimer = t;
   }
 
